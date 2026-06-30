@@ -407,6 +407,60 @@ function renderCanvasLoadImage() {
     resultLoadImage.src = canvasLoad.toDataURL('image/png');
 }
 
+// 背景の16進数カラーコード（例: "#ffffff"）から、最適な文字色（"#000000" または "#ffffff"）を返す関数
+const getContrastColor = (hexColor) => {
+    // # を除去
+    const hex = hexColor.replace('#', '');
+    
+    // RGBの各数値を抽出
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    // HSP（Luminance）モデルを用いて輝度を計算 (人間の目の感度特性に合わせた重み付け)
+    const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+    
+    // 輝度が128（中間の明るさ）より大きければ背景が明るいので「黒文字」、小さければ暗いので「白文字」
+    return luminance > 128 ? '#000000' : '#ffffff';
+};
+
+/**
+ * ラジオボタンの状態に応じて、Canvasコンテキストに影（シャドウ）を設定または解除する関数
+ * @param {CanvasRenderingContext2D} ctx - 影を適用したいCanvasのコンテキスト（uiCtx など）
+ */
+const applyUiShadowIfEnabled = (ctx) => {
+    // 影のラジオボタンで "on" が選ばれているかチェック
+    const shadowElement = document.querySelector('input[name="textShadow"]:checked');
+    const isShadowEnabled = shadowElement && shadowElement.value === 'on';
+    const color = document.querySelector('input[name="textShadowColor"]:checked');
+    const isBlack = color && color.value === 'black';
+    if (isShadowEnabled) {
+        // 【オンの場合】影のプロパティを設定（色、ぼかし、ズレ）
+        if(isBlack){
+            ctx.shadowColor = "rgba(0,0,0,0.6)"; // 黒の不透明度70%の影
+        }else{
+             ctx.shadowColor = "rgba(255, 255, 255, 0.6)";
+        }
+        
+        ctx.shadowBlur = 12;                    // ぼかし具合
+        ctx.shadowOffsetX = 0;                 // 右へのズレ
+        ctx.shadowOffsetY = 0;                 // 下へのズレ
+    } else {
+        // 【オフの場合】影を完全に無効化（クリア）する
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+    }
+};
+// 影のラジオボタンが変更されたらUIキャッシュをクリアして再描画
+document.querySelectorAll('input[name="textShadow"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+        isUiCached = false; // UIキャッシュを使っている場合は、一度フラグをリセットして作り直させる
+        renderCanvas();     // 再描画
+    });
+});
+
 function renderCanvas() {
     console.log("renderCanvas");
     // ... (前略：データの取得やキャンバスサイズ、背景画像描画などは同じ)
@@ -454,6 +508,7 @@ function renderCanvas() {
     ctx.strokeStyle = alertColor; ctx.lineWidth = 1.5; ctx.strokeRect(28, 28, cardW - 56, cardH - 56);    
     // ... (中略：ステータスや文字、バーコードなどの描画はそのまま)
     ctx.textBaseline = 'top'; ctx.fillStyle = themeColor; ctx.font = '900 24px "Orbitron", sans-serif'; ctx.textAlign = 'left';
+    applyUiShadowIfEnabled(ctx);
     ctx.fillText('NEO CITIZEN IDENTIFICATION CARD /////', 45, 45);
     ctx.fillStyle = alertColor; ctx.font = 'bold 16px "Share Tech Mono", monospace'; ctx.fillText(`ID_NO: ${generatedID}`, 45, 75);
 
@@ -505,6 +560,7 @@ function renderCanvas() {
 
     // ⚡【表面】バーコードとQRコードの中間にコピーライトを表示
     ctx.save();
+    applyUiShadowIfEnabled(ctx);
     ctx.fillStyle = themeColor; // または alertColor（テーマカラー2）でお好みに合わせてください
     ctx.font = 'bold 14px "Share Tech Mono", monospace';
     ctx.textAlign = 'center';
@@ -524,8 +580,7 @@ function renderCanvas() {
     const pattern = document.querySelector('input[name="layoutPattern"]:checked').value; // A or B
 
     drawLoginTimeVisualizer(ctx, cardW, cardH, themeColor, alertColor, layoutType, pattern);
-
-
+    
     
     //////////////////////////////////////////
     //////////////////////////////////////////
@@ -558,7 +613,7 @@ function renderCanvas() {
     ctxBack.textBaseline = 'middle'; ctxBack.textAlign = 'center'; ctxBack.fillStyle = alertColor;
     ctxBack.font = 'bold 50px "Orbitron", sans-serif'; ctxBack.fillText('FINAL FANTASY XIV', backW / 2, backH * 0.15);
     
-ctxBack.save(); ctxBack.fillStyle = (backTextColor === '#ffffff') ? 'rgba(255,255,255,0.95)' : 'rgba(0,0,0,0.90)';
+    ctxBack.save(); ctxBack.fillStyle = (backTextColor === '#ffffff') ? 'rgba(255,255,255,0.95)' : 'rgba(0,0,0,0.90)';
     let signFontSize = 300; 
     const maxSignWidth = backW * 0.8; // ⚡ これ以上はみ出してほしくない最大横幅（裏面幅の80%）
 
@@ -592,15 +647,7 @@ ctxBack.save(); ctxBack.fillStyle = (backTextColor === '#ffffff') ? 'rgba(255,25
  * ログイン時間帯ビジュアライザー
  * 表面の右側に24時間の活動時間をドットで表示します
  */
-/**
- * ログイン時間帯ビジュアライザー
- */
-/**
- * ログイン時間帯ビジュアライザー
- */
-/**
- * ログイン時間帯ビジュアライザー
- */
+
 function drawLoginTimeVisualizer(ctx, cardW, cardH, themeColor, alertColor, layoutType, pattern) {
     // 【調整用パラメータ：基準位置】
     const positions = {
@@ -634,6 +681,7 @@ function drawLoginTimeVisualizer(ctx, cardW, cardH, themeColor, alertColor, layo
     const totalHeight = (23 * gap) + extraGap;
 
     ctx.save();
+    applyUiShadowIfEnabled(ctx);
     ctx.translate(startX, startY);
 
     if (layoutType === 'horizontal') {
@@ -642,6 +690,7 @@ function drawLoginTimeVisualizer(ctx, cardW, cardH, themeColor, alertColor, layo
 
     function drawLabel(text, x, y, color) {
         ctx.save();
+        applyUiShadowIfEnabled(ctx);
         ctx.fillStyle = color;
         ctx.font = 'bold 16px Orbitron, sans-serif';
         ctx.textAlign = 'center';
@@ -682,6 +731,7 @@ function drawLoginTimeVisualizer(ctx, cardW, cardH, themeColor, alertColor, layo
         // 時刻表示
         if (i === 0 || i === 12) {
             ctx.save();
+            applyUiShadowIfEnabled(ctx);
             ctx.fillStyle = themeColor;
             ctx.font = 'bold 16px Orbitron, sans-serif';
             ctx.textAlign = 'center';
@@ -705,6 +755,7 @@ function drawLoginTimeVisualizer(ctx, cardW, cardH, themeColor, alertColor, layo
 // ⭕ 最終リファイン：内側増量高密度・11時開放・3点局所電撃＆全体さざ波システム
 function drawCyberTwinWaveScale(targetCtx, cx, cy, color) {
     targetCtx.save();
+    applyUiShadowIfEnabled(targetCtx);
     targetCtx.strokeStyle = color;
     targetCtx.lineWidth = 3.5; 
     targetCtx.globalAlpha = 0.9;
@@ -843,6 +894,7 @@ function drawQrWithHighVisibility(targetCtx, x, y, size, color) {
 
 function drawCyberBarcode(targetCtx, x, y, width, height, color, subColor, codeText) {
     targetCtx.save(); 
+    applyUiShadowIfEnabled(targetCtx);
     targetCtx.fillStyle = color;
     
     const barWidthSequence = [1, 3, 1, 1, 4, 2, 1, 3, 2, 1, 1, 2, 4, 1, 2, 2, 1, 4, 1, 1, 2, 3, 1, 2, 2, 1, 1, 4, 3, 1, 1, 1, 2, 4, 2, 1];
@@ -883,9 +935,15 @@ function drawCyberBarcode(targetCtx, x, y, width, height, color, subColor, codeT
     targetCtx.restore();
 }
 
-function drawCustomCyberPanel(tCtx, text, x, y, fSize, active, tCol) { 
-    tCtx.save(); tCtx.font = `bold ${fSize - 4}px "Share Tech Mono", monospace`; let mWidth = tCtx.measureText(text).width + 12;
-    if (active) { tCtx.fillStyle = tCol; tCtx.fillRect(x - 6, y - 4, mWidth, fSize + 8); tCtx.fillStyle = (getAutomaticBackTextColor(tCol) === '#ffffff') ? '#000000' : '#ffffff'; tCtx.fillText(text, x, y + 2); } 
+function drawCustomCyberPanel(tCtx, text, x, y, fSize, active, tCol) {
+    const themeColor = themeColorPicker.value; const alertColor = themeColorPicker2.value; 
+    tCtx.save();
+    applyUiShadowIfEnabled(tCtx);
+    tCtx.font = `bold ${fSize - 4}px "Share Tech Mono", monospace`; let mWidth = tCtx.measureText(text).width + 12;
+    if (active) { tCtx.fillStyle = tCol; tCtx.fillRect(x - 6, y - 4, mWidth, fSize + 8); 
+        tCtx.fillStyle = getContrastColor(themeColor);
+        // (getAutomaticBackTextColor(tCol) === '#ffffff') ? '#000000' : '#ffffff'; 
+        tCtx.fillText(text, x, y + 2); } 
     else { tCtx.fillStyle = 'rgba(0, 0, 0, 0.25)'; tCtx.fillRect(x - 6, y - 4, mWidth, fSize + 8); tCtx.fillStyle = 'rgba(255, 255, 255, 0.45)'; tCtx.fillText(text, x, y + 2); } tCtx.restore(); 
 }
 
