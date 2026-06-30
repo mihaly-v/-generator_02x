@@ -86,10 +86,27 @@ const neonPalettes = [
 
 const worldData = {
     Secret: ["Secret"], 
+    // === 日本 (Japan Data Center) ===
     Elemental: ["Secret", "Aegis", "Atomos", "Carbuncle", "Garuda", "Gungnir", "Kujata", "Tonberry", "Typhon"],
     Gaia: ["Secret", "Alexander", "Bahamut", "Durandal", "Fenrir", "Ifrit", "Ridill", "Tiamat", "Ultima"],
-    Mana: ["Secret", "Anima", "Asura", "Chocobo", "Hades", "Ixion", "Mandragora", "Masamune", "Pandaemonium", "Titan"],
-    Meteor: ["Secret", "Belias", "Mandragora", "Ramuh", "Shinryu", "Unicorn", "Valefor", "Yojimbo", "Zeromus"]
+    Mana: ["Secret", "Anima", "Asura", "Chocobo", "Hades", "Ixion", "Masamune", "Pandaemonium", "Titan"],
+    Meteor: ["Secret", "Belias", "Mandragora", "Ramuh", "Shinryu", "Unicorn", "Valefor", "Yojimbo", "Zeromus"],
+
+    // === 北米 (North America Data Center) ===
+    Aether: ["Secret", "Adamantoise","Cactuar","Faerie","Gilgamesh","Jenova","Midgardsormr","Sargatanas","Siren"],
+    Crystal: ["Secret", "Balmung","Brynhildr","Coeurl","Diabolos","Goblin","Malboro","Mateus","Zalera"],
+    Dynamis: ["Secret", "Cuchulainn","Golem","Halicarnassus","Kraken","Maduin","Marilith","Rafflesia","Seraph"],
+    Primal: ["Secret", "Behemoth","Excalibur","Exodus","Famfrit","Hyperion","Lamia","Leviathan","Ultros"],
+
+    // === 欧州 (European Data Center) ===
+    Chaos: ["Secret", "Cerberus", "Louisoix", "Moogle", "Omega", "Phantom", "Ragnarok", "Sagittarius", "Spriggan"],
+    Light: ["Secret", "Alpha", "Phoenix", "Raiden", "Shiva", "Twintania", "Zodiark", "Lich", "Odin"],
+
+    // === オセアニア (Oceanian Data Center) ===
+    Materia: ["Secret", "Bismarck", "Ravana", "Sephirot", "Sophia", "Zurvan"],
+
+    // === 韓国 (Korean Data Center) ===
+    Korea: ["Secret", "Carbuncle", "Chocobo", "Moogle", "Tonberry", "Fenrir"]
 };
 
 let currentLang = "JP"; 
@@ -105,7 +122,10 @@ const ctxLoad = canvasLoad.getContext('2d'); const resultLoadImage = document.ge
 
 const canvasBack = document.getElementById('cardCanvasBack'); const ctxBack = canvasBack.getContext('2d');
 const resultImageBack = document.getElementById('resultImageBack');
-const themeColorPicker = document.getElementById('themeColorPicker'); const themeColorPicker2 = document.getElementById('themeColorPicker2'); 
+const themeColorPicker = document.getElementById('themeColorPicker');
+const themeColorPicker2 = document.getElementById('themeColorPicker2'); 
+const shadowColorPicker = document.getElementById('shadowColorPicker');
+const alphaSlider = document.getElementById('alphaSlider');
 const textFontName = document.getElementById('textFontName'); const textFontComment = document.getElementById('textFontComment');
 const backCommentInput = document.getElementById('backComment'); const xTwitterIDInput = document.getElementById('xTwitterID');
 const hiddenQrContainer = document.getElementById('hiddenQrContainer');
@@ -163,26 +183,39 @@ function initPaletteUI() {
 
 const uiLabels = {
     JP: {
-        charName: "表示する名前", affiliation: "サーバー", mainJob: "メインジョブ",
-        xTwitterID: "X (Twitter) @ユーザーID",
-        orientation: "▼ カードの向き", optVert: "縦型", optHoriz: "横型", pattern: "▼ パターン",
-        bgImage: "背景画像アップロード", playstyle: "プレイスタイル (複数選択可)", favRace: "好きな種族 (複数選択可)",
-        progress: "メインストーリー進行度", comment: "裏面のコメント", footerTerms: "利用規約"
+        charName: "// 表示する名前", charNameHolder: "ｱﾙﾌｧﾍﾞｯﾄがｵｽｽﾒです！",
+        affiliation: "// サーバー", mainJob: "// メインジョブ",
+        xTwitterID: "// X (Twitter) @ユーザーID", xTwitterIDHolder: "@無しでもOK！ (QRコードに変換されます)",
+        orientation: "// カードの向き", optVert: "縦型", optHoriz: "横型", pattern: "// パターン",
+        bgImage: "// 背景画像アップロード", playstyle: "// プレイスタイル (複数選択可)", favRace: "// 好きな種族 (複数選択可)",
+        progress: "// メインストーリー進行度", comment: "// 裏面のコメント", commentHolder: "改行もできます！", footerTerms: "// 利用規約",
+        mainColor: "// メインカラー", subColor: "// サブカラー", preset: "// テーマプリセット",
+        shadow: "// 要素の影", shadowColor: "// 影の色", shadowAlpha: "// 透明度", on: "オン", off: "オフ",
+        weekday: "// 平日", weekend: "// 休日",
+        inst: "*表面プレビューで写真の位置を調整、拡大縮小できます。"
     },
     EN: {
-        charName: "Character Name", affiliation: "Server", mainJob: "Main Job",
-        xTwitterID: "X (Twitter) @User ID (for QR Code)",
-        orientation: "▼ Card Style", optHoriz: "Horizontal", optVert: "Vertical", pattern: "▼ Pattern",
-        bgImage: "Upload Background Image", playstyle: "Playstyle (Multiple)", favRace: "Favorite Race (Multiple)",
-        progress: "Main Story Progress", comment: "Rear Transmission Comment", footerTerms: "Terms of Service"
+        charName: "// Character Name", charNameHolder: "RECOMMENDED: ALPHABET",
+        affiliation: "// Server", mainJob: "// Main Job",
+        xTwitterID: "// X (Twitter) @User ID", xTwitterIDHolder: "'@' NOT REQUIRED [ QR_GENERATION ]",
+        orientation: "// Card Style", optHoriz: "// Horizontal", optVert: "// Vertical", pattern: "// Pattern",
+        bgImage: "// Upload Image", playstyle: "// Playstyle (Multiple)", favRace: "// Favorite Race (Multiple)",
+        progress: "// Main Story Progress", comment: "// Rear Card Comment", commentHolder: "LINE_BREAK: ENABLED", footerTerms: "// Terms of Service",
+        mainColor: "// Main Color", subColor: "// Sub Color", preset: "// Presets",
+        shadow: "// Shadow ", shadowColor: "// Shadow Color", shadowAlpha: "// Shadow Alpha", on: "ON", off: "OFF",
+        weekday: "// Weekdays", weekend: "// Weekends",
+        inst: "FRONT_PREVIEW // PHOTO_TRANSFORM_ENABLED (Move/Scale)"
     }
 };
 
 function updateLanguageLabels() {
     const data = uiLabels[currentLang];
     document.getElementById('lblCharName').textContent = data.charName;
+    document.getElementById('charName').placeholder = data.charNameHolder;
     document.getElementById('lblXID').textContent = data.xTwitterID;
+    document.getElementById('xTwitterID').placeholder = data.xTwitterIDHolder;
     document.getElementById('lblAffiliation').textContent = data.affiliation;
+    // document.getElementById('dcSelect').textContent = data.worldData;
     document.getElementById('lblMainJob').textContent = data.mainJob;
     document.getElementById('lblOrientation').firstChild.textContent = data.orientation;
     document.getElementById('optHoriz').textContent = data.optHoriz;
@@ -193,7 +226,22 @@ function updateLanguageLabels() {
     document.getElementById('lblFavRace').textContent = data.favRace;
     document.getElementById('lblProgress').textContent = data.progress;
     document.getElementById('lblComment').firstChild.textContent = data.comment;
+    document.getElementById('backComment').placeholder = data.commentHolder;
     document.getElementById('lblFooterTerms').textContent = data.footerTerms;
+
+    document.getElementById('lblCol1').textContent = data.mainColor;
+    document.getElementById('lblCol2').textContent = data.subColor;
+    document.getElementById('lblColors').textContent = data.preset;
+    document.getElementById('lblShadow').textContent = data.shadow;
+    document.getElementById('lblShadowCol').textContent = data.shadowColor;
+    document.getElementById('lblAplha').textContent = data.shadowAlpha;
+    document.getElementById('lblShadowOn').textContent = data.on;
+    document.getElementById('lblShadowOff').textContent = data.off;
+
+    document.getElementById('lblWeekday').textContent = data.weekday;
+    document.getElementById('lblWeekend').textContent = data.weekend;
+    document.getElementById('lblInst').textContent = data.inst;
+    
 }
 
 function constructFormOptions() {
@@ -242,7 +290,7 @@ function constructFormOptions() {
 
     // 各フォーム要素への一括イベント登録
     document.querySelectorAll('input, select, textarea').forEach(el => {
-        if (el.id === 'themeColorPicker' || el.id === 'themeColorPicker2') {
+        if (el.id === 'themeColorPicker' || el.id === 'themeColorPicker2' || el.id === 'shadowColorPicker' || el.id === 'alphaSlider') {
             // グリグリ動かしている最中(input)に、タイマーを使って描画を間引く
             el.removeEventListener('input', () => {}); // 念のため初期化
             el.addEventListener('input', () => {
@@ -432,15 +480,31 @@ const applyUiShadowIfEnabled = (ctx) => {
     // 影のラジオボタンで "on" が選ばれているかチェック
     const shadowElement = document.querySelector('input[name="textShadow"]:checked');
     const isShadowEnabled = shadowElement && shadowElement.value === 'on';
-    const color = document.querySelector('input[name="textShadowColor"]:checked');
-    const isBlack = color && color.value === 'black';
+    
+    // const alphaSlider = document.getElementById('alphaSlider');
+    const alphaValue = document.getElementById('alphaValue');
+
+    const hex = shadowColorPicker.value;
+    const alpha = alphaSlider.value;
+
+    alphaValue.textContent = alpha;
+
+    const r = parseInt(hex.substring(1, 3), 16);
+    const g = parseInt(hex.substring(3, 5), 16);
+    const b = parseInt(hex.substring(5, 7), 16);
+
+    const rgbaColor = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+
+    ctx.shadowColor = rgbaColor;
+    // const color = document.querySelector('input[name="textShadowColor"]:checked');
+    // const isBlack = color && color.value === 'black';
     if (isShadowEnabled) {
         // 【オンの場合】影のプロパティを設定（色、ぼかし、ズレ）
-        if(isBlack){
-            ctx.shadowColor = "rgba(0,0,0,0.6)"; // 黒の不透明度70%の影
-        }else{
-             ctx.shadowColor = "rgba(255, 255, 255, 0.6)";
-        }
+        // if(isBlack){
+        //     ctx.shadowColor = "rgba(0, 0, 0, 0.6)"; // 黒の不透明度70%の影
+        // }else{
+        //      ctx.shadowColor = "rgba(255, 255, 255, 0.6)";
+        // }
         
         ctx.shadowBlur = 12;                    // ぼかし具合
         ctx.shadowOffsetX = 0;                 // 右へのズレ
@@ -1034,19 +1098,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 //////////////////////////////////
 // 言語切り替え用関数を追加
-function updateTimeLabels() {
-    const isJP = document.getElementById('btnLangJP').classList.contains('active');
-    const lblWeekday = document.getElementById('lblWeekday');
-    const lblWeekend = document.getElementById('lblWeekend');
+// function updateTimeLabels() {
+//     const isJP = document.getElementById('btnLangJP').classList.contains('active');
+//     const lblWeekday = document.getElementById('lblWeekday');
+//     const lblWeekend = document.getElementById('lblWeekend');
     
-    if (isJP) {
-        lblWeekday.textContent = '平日のログイン時間';
-        lblWeekend.textContent = '休日のログイン時間';
-    } else {
-        lblWeekday.textContent = 'Weekdays';
-        lblWeekend.textContent = 'Weekends';
-    }
-}
+//     if (isJP) {
+//         lblWeekday.textContent = '平日のログイン時間';
+//         lblWeekend.textContent = '休日のログイン時間';
+//     } else {
+//         lblWeekday.textContent = 'Weekdays';
+//         lblWeekend.textContent = 'Weekends';
+//     }
+// }
 
 //////////////////////////////////
 //////////////////////////////////

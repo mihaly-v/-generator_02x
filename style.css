@@ -13,6 +13,45 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* それぞれのoption用のフォント指定 */
+.font-orbitron  { font-family: 'Orbitron', sans-serif; }
+.font-cinzel    { font-family: 'Cinzel', serif; }
+.font-montserrat{ font-family: 'Montserrat', sans-serif; }
+.font-techmono  { font-family: 'Share Tech Mono', monospace; }
+.font-notojp    { font-family: 'Noto Sans JP', sans-serif; }
+.font-mplus     { font-family: 'M PLUS 1p', sans-serif; }
+.font-notokr    { font-family: 'Noto Sans KR', sans-serif; }
+.font-blackhan  { font-family: 'Black Han Sans', sans-serif; }
+.font-rubik     { font-family: 'Rubik 80s Fade', sans-serif; }
+.font-syncopate { 
+  font-family: 'Syncopate', sans-serif; 
+  text-transform: uppercase; 
+}
+.font-audiowide { 
+  font-family: 'Audiowide', sans-serif; 
+}
+.font-majormono { 
+  font-family: 'Major Mono Display', monospace;
+}
+.font-stalinist { 
+  font-family: 'Stalinist One', sans-serif; 
+}
+.font-notable { 
+  font-family: 'Notable', sans-serif; 
+}
+.font-cinzeldec { 
+  font-family: 'Cinzel Decorative', serif; 
+}
+.font-gasoek { 
+  font-family: 'Gasoek One', sans-serif; 
+}
+.font-delagothic { 
+  font-family: 'Dela Gothic One', sans-serif; 
+}
+.font-hachimaru { 
+  font-family: 'Hachi Maru Pop', sans-serif; 
+}
+
 body {
     font-family: 'Helvetica Neue', Arial, 'Noto Sans JP', sans-serif;
     background-color: var(--bg-main);
@@ -103,6 +142,22 @@ header {
     justify-content: flex-start;
     overflow-y: auto;
     gap: 8px;
+}
+
+.save-btn,.saveBack-btn,.x-btn {
+    background-color: #f9f9f9;
+    margin: 16px;
+    width: 240px;
+    height: 60px;
+    border: 1px solid #acacac;
+    border-radius: 6px;
+    font-size: 16px;
+    font-family: 'Orbitron', sans-serif;
+}
+.save-btn:hover,.saveBack-btn:hover,.x-btn:hover {
+    cursor: pointer;
+    border: 1px solid #00f0ff;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
 }
 
 .section-title {
